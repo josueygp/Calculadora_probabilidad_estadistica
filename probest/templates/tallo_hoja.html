@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="flex justify-center items-center h-full">
+    <div class="w-full max-w-md">
+        {% if error_message %}
+        <div class="text-red-500">{{ error_message }}</div>
+        {% endif %}
+
+        <div class="py-12">
+            <h1 class="text-3xl font-bold mb-4 text-center">Diagrama de Tallo y Hoja</h1>
+            <div class="mb-4">
+                <h2 class="text-xl font-semibold">Ingrese una lista de números separados por comas o genere números aleatorios:</h2>
+                <form method="post" class="mt-2" id="talloHojaForm">
+                    {% csrf_token %}
+                    <div class="mb-2">
+                        <label for="numbers" class="block">Ingrese números separados por comas:</label>
+                        <input type="text" id="numbers" name="numbers" value="{{ request.POST.numbers }}" class="border border-gray-300 rounded-md py-1 px-2 w-full" oninput="toggleRandomInputs()">
+                    </div>
+                    <div class="flex mb-2">
+                        <div class="mr-4">
+                            <label for="start_range" class="block">Inicio del rango:</label>
+                            <input type="number" id="start_range" name="start_range" value="{{ request.POST.start_range }}" class="border border-gray-300 rounded-md py-1 px-2 w-full" oninput="toggleNumbersInput()">
+                        </div>
+                        <div class="mr-4">
+                            <label for="end_range" class="block">Fin del rango:</label>
+                            <input type="number" id="end_range" name="end_range" value="{{ request.POST.end_range }}" class="border border-gray-300 rounded-md py-1 px-2 w-full" oninput="toggleNumbersInput()">
+                        </div>
+                        <div>
+                            <label for="count" class="block">Cantidad de números aleatorios:</label>
+                            <input type="number" id="count" name="count" value="{{ request.POST.count }}" class="border border-gray-300 rounded-md py-1 px-2 w-full" oninput="toggleNumbersInput()">
+                        </div>
+                    </div>
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full">Calcular</button>
+                    <button type="button" onclick="clearInputs()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded mt-2 w-full">Limpiar</button>
+                </form>
+            </div>
+            {% if registered_numbers %}
+            <h3>Números registrados:</h3>
+            <ul class="flex space-x-2"> <!-- Utilizando clases de Tailwind CSS para flexibilidad horizontal y espaciado -->
+                {% for num in registered_numbers %}
+                <li>{{ num }}</li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% if stem_leaf_dict %}
+            <h2 class="text-xl font-semibold">Resultado:</h2>
+            <table class="border border-collapse mt-4 w-full">
+                <thead>
+                    <tr>
+                        <th class="border py-2 px-4">Tallo</th>
+                        <th class="border py-2 px-4">Hojas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stem, leaves in stem_leaf_dict.items %}
+                    <tr>
+                        <td class="border py-2 px-4">{{ stem }}</td>
+                        <td class="border py-2 px-4">{{ leaves|join:" " }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% elif random_numbers %}
+            <h2 class="text-xl font-semibold">Números aleatorios generados:</h2>
+            <p class="mt-4">{{ random_numbers }}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleNumbersInput() {
+        var numbersInput = document.getElementById('numbers');
+        var startRangeInput = document.getElementById('start_range');
+        var endRangeInput = document.getElementById('end_range');
+        var countInput = document.getElementById('count');
+
+        if (startRangeInput.value.trim() !== '' || endRangeInput.value.trim() !== '' || countInput.value.trim() !== '') {
+            numbersInput.disabled = true;
+        } else {
+            numbersInput.disabled = false;
+        }
+    }
+
+    function toggleRandomInputs() {
+        var numbersInput = document.getElementById('numbers');
+        var startRangeInput = document.getElementById('start_range');
+        var endRangeInput = document.getElementById('end_range');
+        var countInput = document.getElementById('count');
+
+        if (numbersInput.value.trim() !== '') {
+            startRangeInput.disabled = true;
+            endRangeInput.disabled = true;
+            countInput.disabled = true;
+        } else {
+            startRangeInput.disabled = false;
+            endRangeInput.disabled = false;
+            countInput.disabled = false;
+        }
+    }
+
+    function clearInputs() {
+        var numbersInput = document.getElementById('numbers');
+        var startRangeInput = document.getElementById('start_range');
+        var endRangeInput = document.getElementById('end_range');
+        var countInput = document.getElementById('count');
+
+        numbersInput.value = '';
+        startRangeInput.value = '';
+        endRangeInput.value = '';
+        countInput.value = '';
+
+        // Habilitar todos los campos
+        numbersInput.disabled = false;
+        startRangeInput.disabled = false;
+        endRangeInput.disabled = false;
+        countInput.disabled = false;
+    }
+</script>
+{% endblock content %}

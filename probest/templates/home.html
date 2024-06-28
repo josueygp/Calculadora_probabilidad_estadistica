@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<main class="container mx-auto my-8 p-4 bg-white shadow-lg rounded-lg">
+    <section id="inicio" class="mb-8">
+        <h2 class="text-2xl font-bold mb-4">Bienvenido a nuestra Aplicación</h2>
+        <p>Esta aplicación está diseñada para ayudarte a entender y aplicar conceptos de probabilidad y estadística de manera sencilla y eficiente.</p>
+    </section>
+    <section id="caracteristicas" class="mb-8">
+        <h2 class="text-2xl font-bold mb-4">Características Principales</h2>
+        <ul class="list-disc list-inside">
+            <li>Calculo de probabilidades y distribuciones.</li>
+            <li>Análisis de datos descriptivos e inferenciales.</li>
+            <li>Visualización de datos con gráficos interactivos.</li>
+            <li>Recursos educativos y tutoriales paso a paso.</li>
+        </ul>
+    </section>
+    <div class="container mx-auto px-4 mt-10">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {% for aplicacion in aplicaciones %}
+                <a href="{{ aplicacion.url }}">
+                    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                        <img src="{{ aplicacion.foto_portada.url }}" alt="{{ aplicacion.nombre }}" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h5 class="text-lg font-bold">{{ aplicacion.nombre }}</h5>
+                        </div>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+
+{% endblock content %}
+    

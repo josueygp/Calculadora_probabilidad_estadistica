@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="flex justify-center items-center h-full">
+    <div class="w-full max-w-3xl bg-white shadow-md rounded-lg overflow-hidden">
+        {% if error_message %}
+        <div id="alert" role="alert" class="bg-red-100 border-l-4 border-red-500 text-red-900 p-4 mb-4">
+            <p class="font-bold">Danger</p>
+            <p>{{ error_message }}</p>
+        </div>
+        {% endif %}
+
+        <div class="p-8">
+            <h1 class="text-3xl font-bold mb-6 text-center">Tabla de Frecuencia</h1>
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold mb-2">Ingrese una lista de números separados por comas:</h2>
+                <form method="post" class="mt-2" id="frecuenciaForm">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label for="numbers" class="block">Números:</label>
+                        <input type="text" id="numbers" name="numbers" class="border border-gray-300 rounded-md py-2 px-4 w-full focus:outline-none focus:border-blue-500" oninput="this.value = this.value.replace(/[^0-9,]/g, '');">
+                        <small class="text-gray-500">Ingrese números separados por comas (,)</small>
+                    </div>
+                    <div class="mb-4">
+                        <label for="data_type" class="block">Tipo de Datos:</label>
+                        <select id="data_type" name="data_type" class="border border-gray-300 rounded-md py-2 px-4 w-full focus:outline-none focus:border-blue-500">
+                            <option value="no_agrupados" {% if data_type == 'no_agrupados' %}selected{% endif %}>No Agrupados</option>
+                            <option value="agrupados" {% if data_type == 'agrupados' %}selected{% endif %}>Agrupados</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full">Calcular</button>
+                </form>
+            </div>
+
+            {% if frequency_table %}
+            <div class="flex flex-col md:flex-row md:space-x-8">
+                <div class="w-full md:w-3/4">
+                    <h2 class="text-xl font-semibold mb-4">Resultado:</h2>
+                    <div class="overflow-x-auto">
+                        <table class="table-auto w-full">
+                            <thead>
+                                <tr class="bg-gray-200">
+                                    {% if data_type == 'agrupados' %}
+                                    <th class="border px-4 py-2">Intervalo</th>
+                                    <th class="border px-4 py-2">Marca de Clase (xi)</th>
+                                    {% else %}
+                                    <th class="border px-4 py-2">Valor</th>
+                                    {% endif %}
+                                    <th class="border px-4 py-2">Frecuencia</th>
+                                    <th class="border px-4 py-2">Frecuencia Acumulada</th>
+                                    <th class="border px-4 py-2">Frecuencia Relativa</th>
+                                    <th class="border px-4 py-2">Frecuencia Relativa Acumulada</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in frequency_table %}
+                                <tr>
+                                    <td class="border px-4 py-2">
+                                        {% if data_type == 'agrupados' %}
+                                            {{ row.interval }}
+                                        {% else %}
+                                            {{ row.value }}
+                                        {% endif %}
+                                    </td>
+                                    {% if data_type == 'agrupados' %}
+                                    <td class="border px-4 py-2">{{ row.midpoint }}</td>
+                                    {% endif %}
+                                    <td class="border px-4 py-2">{{ row.frequency }}</td>
+                                    <td class="border px-4 py-2">{{ row.cumulative_frequency }}</td>
+                                    <td class="border px-4 py-2">{{ row.relative_frequency|floatformat:2 }}</td>
+                                    <td class="border px-4 py-2">{{ row.cumulative_relative_frequency|floatformat:2 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="w-full md:w-1/4">
+                    <div>
+                        <h2 class="text-xl font-semibold mb-4">Medidas de Tendencia Central:</h2>
+                        {% if data_type == 'agrupados' %}
+                        <p><strong>Media:</strong> {{ mean_value }}</p>
+                        <p><strong>Mediana:</strong> {{ median_value }}</p>
+                        <p><strong>Moda:</strong> {{ mode_value }}</p>
+                        {% else %}
+                        <p><strong>Promedio (Media):</strong> {{ mean_value }}</p>
+                        <p><strong>Mediana:</strong> {{ median_value }}</p>
+                        <p><strong>Moda:</strong> {{ mode_value|join:", " }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="mt-8">
+                        <h2 class="text-xl font-semibold mb-4">Medidas de Dispersión:</h2>
+                        <p><strong>Rango:</strong> {{ range_value }}</p>
+                        <p><strong>Varianza:</strong> {{ variance_value }}</p>
+                        <p><strong>Desviación Estándar:</strong> {{ std_dev_value }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function() {
+        var alert = document.getElementById('alert');
+        if (alert) {
+            alert.classList.add('opacity-0');
+            setTimeout(function() {
+                alert.style.display = 'none';
+            }, 1000); // Espera a que termine la transición antes de ocultar
+        }
+    }, 5000); // Espera 5 segundos antes de empezar a desvanecer
+});
+</script>
+{% endblock content %}
